@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-indigo: #2d2a6e;
+    --color-teal: #0f9e78;
+    --color-coral: #e8601a;
+    --color-slate: #1a1a2e;
+    --color-warm-white: #f5f4f0;
+    --color-steel: #7b8fa6;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    /* Offset anchor scrolling for the sticky nav. */
+    scroll-padding-top: 5rem;
+  }
+
+  body {
+    @apply bg-warm-white font-sans text-slate antialiased;
+  }
+
+  ::selection {
+    @apply bg-teal/20 text-indigo;
+  }
+
+  /* Headings use the Syne display face by default. */
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-display text-indigo;
+    text-wrap: balance;
+  }
+}
+
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-content px-5 sm:px-8;
+  }
+
+  /* DM Mono technical label — used for tags, eyebrows, framework names. */
+  .mono-label {
+    @apply font-mono text-xs uppercase tracking-[0.18em] text-steel;
+  }
+
+  .focus-ring {
+    @apply outline-none ring-teal/60 ring-offset-2 ring-offset-warm-white focus-visible:ring-2;
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx skills *)",
+      "PowerShell(& \"C:\\\\Program Files\\\\nodejs\\\\npx.cmd\" skills add https://github.com/anthropics/skills --skill frontend-design)",
+      "PowerShell($env:Path = \"C:\\\\Program Files\\\\nodejs;\" + $env:Path; & \"C:\\\\Program Files\\\\nodejs\\\\npx.cmd\" skills add https://github.com/anthropics/skills --skill frontend-design)"
+    ]
+  }
+}
