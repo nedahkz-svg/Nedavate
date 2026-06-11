@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Nedavate — Website
 
 **Intelligent learning. Measurable transformation.**
@@ -152,3 +153,7 @@ components/        Nav, Hero, Services, Booking, Footer, etc.
 lib/content.ts     ← all site copy lives here
 public/            images, favicon
 ```
+=======
+# Nedavate
+Webiste
+>>>>>>> c4b152aef5f575bd90ccaf44189a3e6909ca6e55
