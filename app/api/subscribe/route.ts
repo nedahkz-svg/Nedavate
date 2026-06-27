@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { supabase } from "@/lib/supabase";
+import { insertLead } from "@/lib/leads";
 
 export const runtime = "nodejs";
 
@@ -34,14 +36,21 @@ export async function POST(request: Request) {
   }
 
   try {
+    // Save to Supabase first
+    const { error: dbError } = await insertLead(supabase, {
+      name,
+      email,
+      source: "lead-magnet",
+    });
+
     const stored = await forwardToProvider(email, name);
-    if (!stored) {
+    if (!stored && !dbError) {
       console.warn(
         "[subscribe] No email provider configured — lead NOT stored. " +
           "Set CONVERTKIT_API_KEY + CONVERTKIT_FORM_ID or LEAD_WEBHOOK_URL.",
       );
     }
-    return NextResponse.json({ ok: true, stored });
+    return NextResponse.json({ ok: true, stored: stored || !dbError });
   } catch (err) {
     console.error("[subscribe] Provider error:", err);
     return NextResponse.json(

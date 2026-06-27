@@ -74,6 +74,41 @@ in dev. The downloadable asset is the static, printable `public/ai-training-read
 starts at `opacity: 0` and animates on `whileInView`, below-the-fold content is invisible in a
 non-scrolling static screenshot — that's expected, not a bug.
 
+**Chatbot (RAG + memory + tools, 3 channels).** `lib/chatbot/orchestrator.ts` exports
+`runChatTurn()` — the single brain entry point. It resolves visitor identity (anonymous
+session id, upgraded to an email once `capture_lead` fires), loads short-term history
+(`chat_messages`) and long-term facts (`visitor_memory`), retrieves RAG context from
+`kb_chunks` (embedded via Google's Gemini `gemini-embedding-001`, truncated to 768 dims via
+`outputDimensionality`, free tier — `GEMINI_API_KEY`)
+via the `match_kb_chunks` Supabase RPC, calls OpenRouter (`OPENROUTER_MODEL`,
+default `meta-llama/llama-3.3-70b-instruct`, an open-weight model) with tool-calling, and
+persists the result. Three thin adapters
+call it: `app/api/chat/route.ts` (native site chat + the embeddable widget's iframe, both
+same-origin), `app/api/telegram/webhook/route.ts` (Telegram), and the widget itself —
+`public/widget.js`, a static vanilla-JS loader any third-party site can `<script src>`, which
+injects a Shadow-DOM-isolated launcher button and opens an iframe at `/widget`
+(`app/widget/page.tsx`) on click. The chat UI (`components/chat/ChatPanel.tsx`) is built once
+and reused by both `components/chat/ChatWidget.tsx` (native, floating) and `/widget`.
+
+Tools live in `lib/chatbot/tools/`: `capture_lead` reuses `lib/leads.ts` (shared with
+`/api/subscribe`) to write to the existing `leads` table; `update_registration` is a
+v1 placeholder that just logs to `registration_requests` — there is no real registration
+system yet.
+
+All chatbot Supabase tables use `lib/supabaseAdmin.ts` (service-role key, server-only) and have
+RLS enabled with no policies, so the public anon key used elsewhere in the app can't read/write
+them. Schema lives in `supabase/chatbot-schema.sql` (apply manually via the Supabase SQL
+editor — there's no migrations setup in this repo). After applying it, run
+`npm run ingest:kb` to embed `lib/content.ts` into `kb_chunks`; re-run it whenever that copy
+changes meaningfully.
+
+To wire up Telegram after deploying, register the webhook once:
+```bash
+curl -X POST https://api.telegram.org/bot<TELEGRAM_BOT_TOKEN>/setWebhook \
+  -d url=https://<your-domain>/api/telegram/webhook \
+  -d secret_token=<TELEGRAM_WEBHOOK_SECRET>
+```
+
 ## Conventions
 
 - Voice/brand rules live in `Nedavate_Brand_Guide.pdf`. Copy must lead with the problem, speak

@@ -1,4 +1,5 @@
 import { Nav } from "@/components/Nav";
+import { ChatWidget } from "@/components/chat/ChatWidget";
 import { Hero } from "@/components/Hero";
 import { UspBand } from "@/components/UspBand";
 import { Services } from "@/components/Services";
@@ -28,6 +29,7 @@ export default function Home() {
         <FinalCta />
       </main>
       <Footer />
+      <ChatWidget />
     </>
   );
 }
