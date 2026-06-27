@@ -2,7 +2,13 @@ import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { MAX_HISTORY_MESSAGES } from "./config";
 import type { Channel, WireMessage } from "./types";
 
-/** Reuses an existing conversation if it belongs to this visitor, otherwise starts a new one. */
+/**
+ * Reuses an existing conversation if it belongs to this visitor. If no
+ * conversationId is given (always the case for Telegram, which has no
+ * client-side storage to remember one), reuses the visitor's most recent
+ * conversation on this channel rather than starting a fresh thread on every
+ * single message.
+ */
 export async function resolveConversation(
   visitorId: string,
   channel: Channel,
@@ -17,6 +23,16 @@ export async function resolveConversation(
       .maybeSingle();
     if (data) return data.id as string;
   }
+
+  const { data: recent } = await supabaseAdmin
+    .from("conversations")
+    .select("id")
+    .eq("visitor_id", visitorId)
+    .eq("channel", channel)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (recent) return recent.id as string;
 
   const { data: created, error } = await supabaseAdmin
     .from("conversations")
